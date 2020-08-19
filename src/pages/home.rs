@@ -1,9 +1,10 @@
 use crate::api;
+use crate::components::ProductCard;
 use crate::types::{CartProduct, Product};
 use anyhow::Error;
 use yew::format::Json;
-use yew::services::fetch::FetchTask;
 use yew::prelude::*;
+use yew::services::fetch::FetchTask;
 
 struct State {
     products: Vec<Product>,
@@ -34,7 +35,7 @@ impl Component for Home {
         let cart_products = vec![];
 
         link.send_message(Msg::GetProducts);
-        
+
         Self {
             state: State {
                 products,
@@ -111,12 +112,7 @@ impl Component for Home {
             .map(|product: &Product| {
                 let product_id = product.id;
                 html! {
-                  <div>
-                    <img src={&product.image}/>
-                    <div>{&product.name}</div>
-                    <div>{"$"}{&product.price}</div>
-                    <button onclick=self.link.callback(move |_| Msg::AddToCart(product_id))>{"Agregar al carro"}</button>
-                  </div>
+                    <ProductCard product={product} on_add_to_cart=self.link.callback(move|_| Msg::AddToCart(product_id))/>
                 }
             })
             .collect();
@@ -127,12 +123,12 @@ impl Component for Home {
             .fold(0.0, |acc, cp| acc + (cp.quantity as f64 * cp.product.price));
         if !self.state.get_products_loaded {
             html! {
-              <div>{"Loading ..."}</div>
+              <div>{"Cargando ..."}</div>
             }
         } else if let Some(_) = self.state.get_products_error {
             html! {
               <div>
-                <span>{"Error loading products! :("}</span>
+                <span>{"¡Error al cargar productos! :("}</span>
               </div>
             }
         } else {
